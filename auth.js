@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   const googleBtnWrapper = document.getElementById('google-btn-wrapper');
   
-  window.handleCredentialResponse = (response) => {
+  window.handleCredentialResponse = async (response) => {
     try {
       // Decode credential JWT payload (client-side decode helper)
       const base64Url = response.credential.split('.')[1];
@@ -60,9 +60,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const profile = JSON.parse(jsonPayload);
       
-      // Store session state
+      // Persist Google User into Neon DB
+      try {
+        const apiRes = await fetch('/api/google-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: profile.name,
+            email: profile.email,
+            picture: profile.picture
+          })
+        });
+
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.user) {
+            const session = {
+              name: apiData.user.name,
+              username: apiData.user.username,
+              email: apiData.user.email,
+              picture: apiData.user.picture,
+              method: 'google'
+            };
+            localStorage.setItem('aura_session', JSON.stringify(session));
+            showToast(`Welcome, ${profile.name}! Saved to Neon DB...`, 'success');
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 1200);
+            return;
+          }
+        }
+      } catch (apiErr) {
+        console.warn("Neon DB Google Auth API offline, using local session fallback:", apiErr);
+      }
+
+      // Store local session fallback
       const session = {
         name: profile.name,
+        username: profile.email ? profile.email.split('@')[0] : profile.name,
         email: profile.email,
         picture: profile.picture,
         method: 'google'

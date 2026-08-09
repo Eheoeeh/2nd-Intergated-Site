@@ -165,12 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const websiteInput = document.getElementById('website');
+      const website = websiteInput ? websiteInput.value : '';
+
       // 1. Try Vercel / Neon DB Serverless API
       try {
         const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ username, password, website })
         });
 
         if (response.ok) {

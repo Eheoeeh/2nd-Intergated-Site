@@ -1,5 +1,7 @@
 const { neon } = require('@neondatabase/serverless');
 const bcrypt = require('bcryptjs');
+const { reportLoginEvent, detectInjection } = require('../utils/csladReporter');
+const { checkHoneypotField } = require('../utils/csladHoneypot');
 
 module.exports = async function handler(req, res) {
   // Allow CORS headers
@@ -25,6 +27,19 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ success: false, message: 'Username and password are required' });
   }
 
+  // ── STEP 4: Stop SQL & Script Injections (First Line of Defense) ────────────
+  if (detectInjection(username, password)) {
+    reportLoginEvent(req, 'injection_attempt');
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
+
+  // ── STEP 6: Stop Bots using Honeypot ─────────────────────────────────────────
+  const botCheck = await checkHoneypotField(req, 'website');
+  if (botCheck.is_bot) {
+    reportLoginEvent(req, 'blocked');
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
+
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     return res.status(500).json({ success: false, message: 'DATABASE_URL environment variable is missing on Vercel' });
@@ -35,25 +50,32 @@ module.exports = async function handler(req, res) {
 
     // Query Neon database for user by username or email
     const result = await sql`
-      SELECT id, name, username, email, password_hash
+      SELECT id, name, username, email, password_hash, auth_method
       FROM users
       WHERE LOWER(username) = LOWER(${username}) OR LOWER(email) = LOWER(${username})
       LIMIT 1
     `;
 
+    // ── STEP 5: Log Authentication Outcome: User Not Found ─────────────────────
     if (result.length === 0) {
+      reportLoginEvent(req, 'not_found');
       return res.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
     const user = result[0];
 
     // Verify password hash
-    const isValid = await bcrypt.compare(password, user.password_hash);
+    const isValid = user.password_hash ? await bcrypt.compare(password, user.password_hash) : false;
+    
+    // ── STEP 5: Log Authentication Outcome: Wrong Password ────────────────────
     if (!isValid) {
+      reportLoginEvent(req, 'failure', user.id, 'user');
       return res.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
-    // Success
+    // ── STEP 5: Log Authentication Outcome: Login Success ─────────────────────
+    reportLoginEvent(req, 'success', user.id, 'user');
+
     return res.status(200).json({
       success: true,
       message: 'Login successful',

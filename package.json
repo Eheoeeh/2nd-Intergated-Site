@@ -1,0 +1,13 @@
+{
+  "name": "aura-workspace-app",
+  "version": "1.0.0",
+  "description": "Aura Ambient Workspace with Neon Postgres Auth",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "bcryptjs": "^2.4.3"
+  }
+}

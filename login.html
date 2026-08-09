@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign In to Aura — The Ambient Workspace.">
+  <title>Sign In — Aura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css">
+  <!-- Load Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- Ambient Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <header class="auth-header">
+        <a href="index.html" style="text-decoration: none;">
+          <div class="logo-group">
+            <span class="logo-dot"></span>
+            <span class="logo-text">AURA</span>
+          </div>
+        </a>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to access your ambient workspace</p>
+      </header>
+
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required autocomplete="username" placeholder="Enter username">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+
+        <div class="form-meta">
+          <label class="remember-me">
+            <input type="checkbox" id="remember">
+            Keep me active
+          </label>
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sign In</button>
+
+        <div class="divider">or continue with</div>
+
+        <div class="social-buttons">
+          <!-- Real Google Identity Services Button Wrapper -->
+          <div id="google-btn-wrapper" style="width: 100%; display: flex; justify-content: center; height: 40px; overflow: hidden; border-radius: 12px;"></div>
+        </div>
+      </form>
+
+      <footer class="auth-footer">
+        Don't have an account? <a href="signup.html" class="auth-link">Sign up</a>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Glass Toast Notifications -->
+  <div class="auth-toast" id="auth-toast">
+    <span class="toast-dot"></span>
+    <span id="toast-message">Verification state</span>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Environment variables & secrets (keep database passwords private)
+.env
+.env.local
+
+# Vercel metadata
+.vercel
+
+# System files
+.DS_Store
+Thumbs.db

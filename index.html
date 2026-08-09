@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aura — Immersive Ambient Workspace. Experiencing vertical 3D snapping exhibitions, OKLCH colors, container queries, and Web Audio visualizers.">
+  <title>Aura — The Ambient Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Decorative Ambient Orbs (Static & Parallax) -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <!-- FLOATING HUD: Fixed Branding & Settings -->
+  <header class="floating-hud">
+    <div class="logo-group" id="status-anchor" style="cursor: pointer;">
+      <span class="logo-dot"></span>
+      <span class="logo-text">AURA</span>
+    </div>
+    <div class="hud-center">
+      <nav class="hud-nav">
+        <a href="#section-intro" class="nav-link active">Home</a>
+        <a href="#section-wave" class="nav-link">Wave</a>
+        <a href="#section-ai" class="nav-link">AI</a>
+        <a href="#section-grid" class="nav-link">Grid</a>
+        <a href="#section-audio" class="nav-link">Audio</a>
+      </nav>
+    </div>
+    <div class="hud-actions" id="hud-actions">
+      <button class="btn btn-secondary btn-hud" id="help-popover-trigger" popovertarget="help-popover">
+        API Help
+      </button>
+      <a href="login.html" class="btn btn-primary btn-hud" id="btn-hud-auth">Sign In</a>
+    </div>
+  </header>
+
+  <!-- MAIN SCROLL-SNAP CONTAINER -->
+  <div class="app-scroll-container">
+    
+    <!-- SECTION 1: Intro Hero & CLI Console -->
+    <section id="section-intro" class="viewport-section section-intro">
+      <div class="section-content">
+        <div class="hero-split-grid">
+          
+          <div class="hero-text-side fade-up-item">
+            <h1 class="hero-title">
+              Where <span class="italic-serif">form</span> meets <span class="ambient-gradient-text">feeling</span>.
+            </h1>
+            <p class="hero-description">
+              Welcome to an experimental, light-themed sensory workspace. Scroll vertically to explore interactive modules built with bleeding-edge web APIs.
+            </p>
+            <div class="quick-controls">
+              <div class="control-group">
+                <label for="theme-preset">OKLCH Palette Rotation</label>
+                <div class="custom-select-wrapper">
+                  <select id="theme-preset">
+                    <option value="315">Orchid Pearl (Default)</option>
+                    <option value="140">Mint Sage</option>
+                    <option value="45">Peach Coral</option>
+                    <option value="200">Sky Blue</option>
+                    <option value="25">Amber Sand</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-card-side fade-up-item delay-1">
+            <div class="console-box tilt-target">
+              <div class="console-header">
+                <span class="console-dot red"></span>
+                <span class="console-dot yellow"></span>
+                <span class="console-dot green"></span>
+                <span class="console-title">aura-terminal v2.0</span>
+              </div>
+              <div class="console-body">
+                <div class="console-history" id="console-history">
+                  <div class="console-line system">Type <span class="console-highlight">help</span> to list commands. Try rotating colors using <span class="console-highlight">hue 45</span> or <span class="console-highlight">hue 290</span>.</div>
+                </div>
+                <div class="console-input-row">
+                  <span class="console-prompt">&gt;</span>
+                  <input type="text" id="console-input" placeholder="Type a command..." autocomplete="off" spellcheck="false" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="scroll-indicator">
+          <span class="indicator-text">Scroll down to explore</span>
+          <span class="indicator-arrow">↓</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Interactive Wave Engine -->
+    <section id="section-wave" class="viewport-section section-wave">
+      <!-- Embedded Fullscreen Canvas Background for this specific module -->
+      <canvas id="wave-canvas"></canvas>
+      
+      <div class="section-content">
+        <div class="floating-module-card tilt-target fade-up-item wave-synth-card">
+          <div class="card-badge">Module 01 / Visual Synthesizer</div>
+          <h2 class="card-title">Fluid Wave Oscillator</h2>
+          <p class="card-desc">An interactive visual engine layered with overlapping frequencies. Select a mathematical formation and tweak the parameters in real time.</p>
+          
+          <div class="wave-mode-selector">
+            <span class="selector-label">Wave Mode</span>
+            <div class="btn-group-segmented">
+              <button class="btn-segment active" data-mode="sine">Sine</button>
+              <button class="btn-segment" data-mode="interference">Interference</button>
+              <button class="btn-segment" data-mode="chaotic">Chaotic</button>
+            </div>
+          </div>
+
+          <div class="card-action-bar wave-sliders-grid">
+            <div class="param-slider-group">
+              <label>Base Frequency <span id="val-freq">0.020</span></label>
+              <input type="range" id="slider-freq" min="0.005" max="0.05" step="0.001" value="0.02">
+            </div>
+            <div class="param-slider-group">
+              <label>Base Amplitude <span id="val-amp">30</span></label>
+              <input type="range" id="slider-amp" min="10" max="60" step="1" value="30">
+            </div>
+            <div class="param-slider-group">
+              <label>Flow Speed <span id="val-speed">0.015</span></label>
+              <input type="range" id="slider-speed" min="0.005" max="0.05" step="0.001" value="0.015">
+            </div>
+            <div class="param-slider-group">
+              <label>Layers (Frequencies) <span id="val-layers">2</span></label>
+              <input type="range" id="slider-layers" min="1" max="4" step="1" value="2">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Simulated Local AI Assistant -->
+    <section id="section-ai" class="viewport-section section-ai">
+      <div class="section-content">
+        <div class="ai-split-grid">
+          
+          <div class="ai-text-side fade-up-item">
+            <div class="card-badge">Module 02 / Intelligence</div>
+            <h2 class="section-heading">Local Model Summarization</h2>
+            <p class="section-desc">
+              Simulates Chrome's built-in on-device AI API. Condense lengthy ideas into bulleted insights in a fraction of a second, demonstrating modern form validation and input behaviors.
+            </p>
+          </div>
+
+          <div class="ai-card-side fade-up-item delay-1">
+            <div class="exhibition-card tilt-target">
+              <div class="ai-box">
+                <textarea id="ai-input" placeholder="Type or paste text to summarize here..." rows="3"></textarea>
+                <div class="ai-actions">
+                  <button class="btn btn-primary btn-sm" id="btn-ai-summarize">Summarize Text</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-ai-clear">Clear</button>
+                </div>
+                <div class="ai-output" id="ai-output" style="display: none;">
+                  <div class="ai-output-title">AI Summary Result:</div>
+                  <div class="ai-output-content" id="ai-output-text"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Container Query Architect -->
+    <section id="section-grid" class="viewport-section section-grid">
+      <div class="section-content">
+        <div class="grid-split-grid">
+          
+          <div class="grid-card-side fade-up-item">
+            <div class="exhibition-card card-flexible tilt-target">
+              <div class="slider-architect-control">
+                <label>Container Width: <span id="architect-width-val">100%</span></label>
+                <input type="range" id="slider-architect-width" min="300" max="750" value="750">
+              </div>
+
+              <div class="architect-container-wrapper" id="architect-wrapper">
+                <div class="architect-box" id="architect-box">
+                  <div class="architect-card">
+                    <div class="arch-icon">⚡</div>
+                    <div class="arch-meta">
+                      <h3>Micro-Frontend</h3>
+                      <p>Adapts typography and sizing dynamically based on container size.</p>
+                    </div>
+                  </div>
+                  <div class="architect-card">
+                    <div class="arch-icon">🎨</div>
+                    <div class="arch-meta">
+                      <h3>Procedural Style</h3>
+                      <p>Snaps to a vertical stack once the wrapper goes below 450px.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-text-side fade-up-item delay-1">
+            <div class="card-badge">Module 03 / Layout Engine</div>
+            <h2 class="section-heading">Container Query Architect</h2>
+            <p class="section-desc">
+              Rather than querying the global browser viewport, container queries listen to their parent block size. Drag the slider to watch the cards change columns, orientation, and colors natively.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Web Audio Mixer & Real-time Visualizer -->
+    <section id="section-audio" class="viewport-section section-audio">
+      <div class="section-content">
+        <div class="audio-split-grid">
+          
+          <div class="audio-text-side fade-up-item">
+            <div class="card-badge">Module 04 / Ambient Synthesizer</div>
+            <h2 class="section-heading">Soundscape Web Audio Mixer</h2>
+            <p class="section-desc">
+              Generate procedural ocean wave white-noise using the Web Audio API. 
+              When active, an analyzer extracts frequency data and draws the soundwaves in real time onto the adjacent canvas.
+            </p>
+            <div class="mixer-sliders">
+              <div class="mixer-knob">
+                <label>Lowpass Filter Cutoff</label>
+                <input type="range" id="slider-audio-filter" min="100" max="2000" step="10" value="800">
+              </div>
+              <div class="mixer-knob">
+                <label>Wave Amplitude Depth</label>
+                <input type="range" id="slider-audio-depth" min="0" max="1" step="0.05" value="0.5">
+              </div>
+            </div>
+          </div>
+
+          <div class="audio-card-side fade-up-item delay-1">
+            <div class="exhibition-card tilt-target audio-mixer-dashboard">
+              
+              <!-- Frequency Visualizer Canvas -->
+              <div class="visualizer-wrapper">
+                <canvas id="audio-visualizer-canvas"></canvas>
+              </div>
+
+              <div class="audio-play-row">
+                <button class="btn btn-audio-play" id="btn-audio-toggle">
+                  <span class="play-icon">▶</span> Play Ambient Flow
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- NATIVE POPOVER ELEMENT (Popover API) -->
+  <div id="help-popover" popover class="help-popover-card">
+    <div class="popover-header">
+      <h3><span class="italic-serif">Aura</span> Console References</h3>
+      <button class="popover-close-btn" popovertarget="help-popover" popovertargetaction="hide">×</button>
+    </div>
+    <div class="popover-body">
+      <p>Control the entire experience using console commands:</p>
+      <ul>
+        <li><kbd>help</kbd> - Show this command helper list.</li>
+        <li><kbd>hue &lt;0-360&gt;</kbd> - Change the OKLCH theme hue dynamically.</li>
+        <li><kbd>clear</kbd> - Wipe terminal logs.</li>
+        <li><kbd>wave &lt;freq&gt; &lt;amp&gt;</kbd> - Modify Wave oscillator parameters.</li>
+        <li><kbd>status</kbd> - Output core system configuration states.</li>
+      </ul>
+      <p class="popover-note">Uses native browser Popovers styled with starting-style entry states.</p>
+    </div>
+  </div>
+
+  <!-- NATIVE DIALOG MODAL (Dialog API) -->
+  <dialog id="detail-dialog" class="details-dialog-modal">
+    <div class="dialog-wrapper">
+      <header class="dialog-header">
+        <h2 id="dialog-title">System Configurations</h2>
+        <button class="dialog-close-btn" id="btn-close-dialog">×</button>
+      </header>
+      <div class="dialog-body">
+        <p>Interactive core status of this workspace installation.</p>
+        <div class="dialog-metric-grid">
+          <div class="metric-card">
+            <span class="metric-label">Frequency Render</span>
+            <span class="metric-value">ReqAnimFrame</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Color Space</span>
+            <span class="metric-value">OKLCH Precision</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Web Audio status</span>
+            <span class="metric-value" id="val-metric-status">Idle</span>
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="btn btn-primary" id="btn-dialog-confirm">Apply Setup</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- FLOATING ANCHORED STATUS BADGE (Anchor Positioning) -->
+  <div class="status-badge" id="anchored-status-badge">
+    <span class="badge-dot"></span> System Live
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

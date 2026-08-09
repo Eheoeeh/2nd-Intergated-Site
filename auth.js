@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initGoogleAuth() {
     if (googleBtnWrapper && window.google) {
       window.google.accounts.id.initialize({
-        client_id: '928062303691-127k9mcmaff54h21meuo8u1iaeefvh3s.apps.googleusercontent.com',
+        client_id: '928062303691-egh5oimhhoh4l5ghav1ckcusr0o9atda.apps.googleusercontent.com',
         callback: window.handleCredentialResponse
       });
       window.google.accounts.id.renderButton(

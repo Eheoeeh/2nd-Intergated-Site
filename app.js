@@ -35,20 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Session check and DOM updates
   const hudAuthBtn = document.getElementById('btn-hud-auth');
+  const navAuthLink = document.getElementById('nav-hud-auth-link');
   const sessionData = localStorage.getItem('aura_session');
   
   if (sessionData) {
     try {
       const session = JSON.parse(sessionData);
-      if (hudAuthBtn) {
-        hudAuthBtn.innerText = 'Sign Out';
-        hudAuthBtn.removeAttribute('href');
-        hudAuthBtn.style.cursor = 'pointer';
-        hudAuthBtn.addEventListener('click', () => {
-          localStorage.removeItem('aura_session');
-          window.location.reload();
-        }, { signal });
-      }
+      [hudAuthBtn, navAuthLink].forEach(btn => {
+        if (btn) {
+          btn.innerText = 'Sign Out';
+          btn.removeAttribute('href');
+          btn.style.cursor = 'pointer';
+          btn.addEventListener('click', () => {
+            localStorage.removeItem('aura_session');
+            window.location.reload();
+          }, { signal });
+        }
+      });
       // Print session verification on terminal launch
       setTimeout(() => {
         const identifier = session.username || session.name || session.email;

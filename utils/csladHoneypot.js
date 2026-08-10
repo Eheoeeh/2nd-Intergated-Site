@@ -13,7 +13,7 @@ const axios = require('axios');
 const { _getRealIp } = require('./csladReporter');
 
 const CSLAD_URL   = (process.env.CSLAD_URL || 'http://localhost:5000').replace(/\/$/, '');
-const API_KEY     = (process.env.CSLAD_API_KEY || 'cslad-5aebe640-8cae094fd8b45aa5e64c98d1d0672fdb').trim();
+const API_KEY     = (process.env.CSLAD_API_KEY || process.env.CSLAD_API || 'cslad-2c04dcf9-975690f73ae3c7cd21ffccda6f602879').trim();
 const TIMEOUT_SEC = 2;
 const ENABLED     = (process.env.CSLAD_ENABLED || 'true').toLowerCase() !== 'false';
 

@@ -11,6 +11,11 @@
  */
 
 const axios = require('axios');
+const http = require('http');
+const https = require('https');
+
+const keepAliveOffHttpAgent = new http.Agent({ keepAlive: false });
+const keepAliveOffHttpsAgent = new https.Agent({ keepAlive: false });
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const CSLAD_URL   = (process.env.CSLAD_URL || 'http://localhost:5000').replace(/\/$/, '');
@@ -78,6 +83,8 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
       'X-API-Key': API_KEY,
       'Content-Type': 'application/json'
     },
+    httpAgent: keepAliveOffHttpAgent,
+    httpsAgent: keepAliveOffHttpsAgent,
     timeout: TIMEOUT_SEC * 1000
   }).catch((err) => {
     console.error('[CSLAD] Reporting failed:', err.message);
@@ -95,8 +102,10 @@ async function checkIpBlocked(req) {
   try {
     const ip = _getRealIp(req);
     const res = await axios.get(`${CSLAD_URL}/api/client/check-ip`, {
-      params: { ip_address: ip },
+      params: { ip: ip },
       headers: { 'X-API-Key': API_KEY },
+      httpAgent: keepAliveOffHttpAgent,
+      httpsAgent: keepAliveOffHttpsAgent,
       timeout: TIMEOUT_SEC * 1000,
       validateStatus: () => true
     });

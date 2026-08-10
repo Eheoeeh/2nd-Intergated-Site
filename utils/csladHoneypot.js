@@ -10,7 +10,12 @@
  */
 
 const axios = require('axios');
+const http = require('http');
+const https = require('https');
 const { _getRealIp } = require('./csladReporter');
+
+const keepAliveOffHttpAgent = new http.Agent({ keepAlive: false });
+const keepAliveOffHttpsAgent = new https.Agent({ keepAlive: false });
 
 const CSLAD_URL   = (process.env.CSLAD_URL || 'http://localhost:5000').replace(/\/$/, '');
 const API_KEY     = (process.env.CSLAD_API_KEY || process.env.CSLAD_API || 'cslad-2c04dcf9-975690f73ae3c7cd21ffccda6f602879').trim();
@@ -45,6 +50,8 @@ async function checkHoneypotCredentials(req) {
       user_agent: (req && req.headers && req.headers['user-agent']) || '',
     }, {
       headers: { 'X-API-Key': API_KEY },
+      httpAgent: keepAliveOffHttpAgent,
+      httpsAgent: keepAliveOffHttpsAgent,
       timeout: TIMEOUT_SEC * 1000,
     });
     
@@ -76,6 +83,8 @@ async function getHoneypotFieldName() {
   try {
     const response = await axios.get(`${CSLAD_URL}/api/honeypots/active-fields`, {
       headers: { 'X-API-Key': API_KEY },
+      httpAgent: keepAliveOffHttpAgent,
+      httpsAgent: keepAliveOffHttpsAgent,
       timeout: TIMEOUT_SEC * 1000,
     });
     const fields = response.data.fields || [];
@@ -110,6 +119,8 @@ async function checkHoneypotField(req, fieldName, formLoadTimeMs = null) {
       user_agent: (req && req.headers && req.headers['user-agent']) || '',
     }, {
       headers: { 'X-API-Key': API_KEY },
+      httpAgent: keepAliveOffHttpAgent,
+      httpsAgent: keepAliveOffHttpsAgent,
       timeout: TIMEOUT_SEC * 1000,
     });
 

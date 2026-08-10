@@ -1,13 +1,20 @@
 /**
  * csladReporter.js
- * CSLAD Login Event Reporter — Node.js / Express / Vercel Serverless
+ * CSLAD Login Event Reporter — Node.js / Express
+ * 
+ * HOW TO USE:
+ *   1. Copy this file into your project helpers/utils folder (e.g. utils/)
+ *   2. Set environment variables:
+ *        CSLAD_URL      = http://localhost:5000
+ *        CSLAD_API_KEY  = your-api-key-here
+ *   3. Call reportLoginEvent() at every login decision point
  */
 
 const axios = require('axios');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const CSLAD_URL   = (process.env.CSLAD_URL || 'http://localhost:5000').replace(/\/$/, '');
-const API_KEY     = (process.env.CSLAD_API_KEY || process.env.CSLAD_API || 'your-api-key-here').trim();
+const API_KEY     = (process.env.CSLAD_API_KEY || 'cslad-5aebe640-8cae094fd8b45aa5e64c98d1d0672fdb').trim();
 const TIMEOUT_SEC = 2; // seconds
 const ENABLED     = (process.env.CSLAD_ENABLED || 'true').toLowerCase() !== 'false';
 
@@ -31,7 +38,7 @@ function detectInjection(email, password) {
 }
 
 /**
- * Helper to extract client real IP from Express / Serverless request object
+ * Helper to extract client real IP from Express request object
  */
 function _getRealIp(req) {
   if (req && req.headers) {
@@ -61,7 +68,7 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
     success: outcome === 'success',
     user_agent: (req && req.headers && req.headers['user-agent']) || '',
     failure_reason: FAILURE_REASONS[outcome] || null,
-    account_role: accountRole || 'user',
+    account_role: accountRole,
     user_id: userId,
   };
 
@@ -69,8 +76,7 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
   axios.post(`${CSLAD_URL}/api/client/log-event`, payload, {
     headers: {
       'X-API-Key': API_KEY,
-      'Content-Type': 'application/json',
-      'bypass-tunnel-reminder': 'true'
+      'Content-Type': 'application/json'
     },
     timeout: TIMEOUT_SEC * 1000
   }).catch((err) => {
@@ -79,41 +85,34 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
 }
 
 /**
- * Synchronously checks if the client IP is blocked by CSLAD before authenticating.
- * Returns { is_blocked: true, blocked_until: string } if blocked, or { is_blocked: false } if clean.
+ * Checks if client IP is blocked by CSLAD rate limiter / firewall.
+ * Call at Step 0 of your login route BEFORE database / auth logic.
+ * Returns true if blocked (HTTP 403 or blocked:true), false otherwise.
+ * Fails open (returns false) on network error.
  */
 async function checkIpBlocked(req) {
-  if (!ENABLED) return { is_blocked: false };
-
-  const clientIp = _getRealIp(req);
+  if (!ENABLED) return false;
   try {
-    const response = await axios.get(`${CSLAD_URL}/api/client/check-ip`, {
-      params: { ip: clientIp },
-      headers: { 
-        'X-API-Key': API_KEY,
-        'bypass-tunnel-reminder': 'true'
-      },
+    const ip = _getRealIp(req);
+    const res = await axios.get(`${CSLAD_URL}/api/client/check-ip`, {
+      params: { ip_address: ip },
+      headers: { 'X-API-Key': API_KEY },
       timeout: TIMEOUT_SEC * 1000,
-      validateStatus: (status) => status < 500,
+      validateStatus: () => true
     });
-
-    if (response.status === 403 || response.data?.is_blocked) {
-      return {
-        is_blocked: true,
-        blocked_until: response.data?.blocked_until || null,
-        recommendation: response.data?.recommendation || 'block'
-      };
+    if (res.status === 403 || (res.data && res.data.blocked)) {
+      return true;
     }
-    return { is_blocked: false };
+    return false;
   } catch (err) {
-    console.error('[CSLAD] Pre-check failed (failing open):', err.message);
-    return { is_blocked: false };
+    console.error('[CSLAD] checkIpBlocked failed (failing open):', err.message);
+    return false;
   }
 }
 
 module.exports = {
   detectInjection,
-  reportLoginEvent,
   checkIpBlocked,
+  reportLoginEvent,
   _getRealIp
 };

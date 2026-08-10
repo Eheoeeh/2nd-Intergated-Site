@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "npx serve .",
-    "dev": "vercel dev"
+    "dev": "npx serve ."
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

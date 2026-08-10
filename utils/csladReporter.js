@@ -69,7 +69,8 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
   axios.post(`${CSLAD_URL}/api/client/log-event`, payload, {
     headers: {
       'X-API-Key': API_KEY,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'bypass-tunnel-reminder': 'true'
     },
     timeout: TIMEOUT_SEC * 1000
   }).catch((err) => {
@@ -77,8 +78,42 @@ function reportLoginEvent(req, outcome, userId = null, accountRole = null) {
   });
 }
 
+/**
+ * Synchronously checks if the client IP is blocked by CSLAD before authenticating.
+ * Returns { is_blocked: true, blocked_until: string } if blocked, or { is_blocked: false } if clean.
+ */
+async function checkIpBlocked(req) {
+  if (!ENABLED) return { is_blocked: false };
+
+  const clientIp = _getRealIp(req);
+  try {
+    const response = await axios.get(`${CSLAD_URL}/api/client/check-ip`, {
+      params: { ip: clientIp },
+      headers: { 
+        'X-API-Key': API_KEY,
+        'bypass-tunnel-reminder': 'true'
+      },
+      timeout: TIMEOUT_SEC * 1000,
+      validateStatus: (status) => status < 500,
+    });
+
+    if (response.status === 403 || response.data?.is_blocked) {
+      return {
+        is_blocked: true,
+        blocked_until: response.data?.blocked_until || null,
+        recommendation: response.data?.recommendation || 'block'
+      };
+    }
+    return { is_blocked: false };
+  } catch (err) {
+    console.error('[CSLAD] Pre-check failed (failing open):', err.message);
+    return { is_blocked: false };
+  }
+}
+
 module.exports = {
   detectInjection,
   reportLoginEvent,
+  checkIpBlocked,
   _getRealIp
 };

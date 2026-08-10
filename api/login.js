@@ -1,6 +1,6 @@
 const { neon } = require('@neondatabase/serverless');
 const bcrypt = require('bcryptjs');
-const { reportLoginEvent, detectInjection } = require('../utils/csladReporter');
+const { reportLoginEvent, detectInjection, checkIpBlocked } = require('../utils/csladReporter');
 const { checkHoneypotField } = require('../utils/csladHoneypot');
 
 module.exports = async function handler(req, res) {
@@ -19,6 +19,17 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method Not Allowed' });
+  }
+
+  // ── STEP 0: Check if client IP is blocked by CSLAD rate limiter / firewall ─
+  const ipCheck = await checkIpBlocked(req);
+  if (ipCheck.is_blocked) {
+    reportLoginEvent(req, 'blocked');
+    return res.status(403).json({
+      success: false,
+      message: 'Access Denied: Your IP address has been blocked due to security violations.',
+      blocked_until: ipCheck.blocked_until || null
+    });
   }
 
   const { username, password } = req.body || {};

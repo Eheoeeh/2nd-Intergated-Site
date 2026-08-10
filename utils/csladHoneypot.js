@@ -38,7 +38,10 @@ async function checkHoneypotCredentials(req) {
       ip_address: _getRealIp(req),
       user_agent: (req && req.headers && req.headers['user-agent']) || '',
     }, {
-      headers: { 'X-API-Key': API_KEY },
+      headers: { 
+        'X-API-Key': API_KEY,
+        'bypass-tunnel-reminder': 'true'
+      },
       timeout: TIMEOUT_SEC * 1000,
     });
     
@@ -69,7 +72,10 @@ async function getHoneypotFieldName() {
 
   try {
     const response = await axios.get(`${CSLAD_URL}/api/honeypots/active-fields`, {
-      headers: { 'X-API-Key': API_KEY },
+      headers: { 
+        'X-API-Key': API_KEY,
+        'bypass-tunnel-reminder': 'true'
+      },
       timeout: TIMEOUT_SEC * 1000,
     });
     const fields = response.data.fields || [];
@@ -107,7 +113,10 @@ async function checkHoneypotField(req, fieldName = 'website', formLoadTimeMs = n
       ip_address: _getRealIp(req),
       user_agent: (req && req.headers && req.headers['user-agent']) || '',
     }, {
-      headers: { 'X-API-Key': API_KEY },
+      headers: { 
+        'X-API-Key': API_KEY,
+        'bypass-tunnel-reminder': 'true'
+      },
       timeout: TIMEOUT_SEC * 1000,
     });
 

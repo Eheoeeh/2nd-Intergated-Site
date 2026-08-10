@@ -339,7 +339,7 @@ body {
 .ambient-gradient-text {
   font-weight: 700;
   background: linear-gradient(135deg, var(--text-primary), var(--accent-coral));
-  -webkit-background-clip: text;
+  _-webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

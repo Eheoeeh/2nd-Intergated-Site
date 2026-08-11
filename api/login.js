@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const sql = neon(databaseUrl);
+    const sql = neon(databaseUrl, { fetchOptions: { signal: AbortSignal.timeout(3000) } });
 
     // Query Neon database for user by username or email
     const result = await sql`

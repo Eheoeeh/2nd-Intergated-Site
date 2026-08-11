@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const sql = neon(databaseUrl);
+    const sql = neon(databaseUrl, { fetchOptions: { signal: AbortSignal.timeout(3000) } });
 
     // Derive a clean username from email
     const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');

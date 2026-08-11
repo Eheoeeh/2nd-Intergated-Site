@@ -32,6 +32,7 @@ const FAILURE_REASONS = {
   'not_found':         'user_not_found',
   'injection_attempt': 'injection_attempt',
   'locked':            'account_locked',
+  'error':             'system_error',
 };
 
 /**

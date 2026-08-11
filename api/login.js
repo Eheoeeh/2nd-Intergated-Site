@@ -99,6 +99,7 @@ module.exports = async function handler(req, res) {
     });
   } catch (error) {
     console.error('Neon DB Login error:', error);
+    reportLoginEvent(req, 'error', null, 'system');
     return res.status(500).json({ success: false, message: 'Database authentication error', error: error.message });
   }
 };
